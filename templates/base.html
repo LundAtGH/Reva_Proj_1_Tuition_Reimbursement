@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Project 1</title>
+
+    <style>
+        body
+        {
+            background-color: white;
+        }
+        .outer_C
+        {
+            background-image: url("https://3s81si1s5ygj3mzby34dq6qf-wpengine.netdna-ssl.com/wp-content/uploads/2020/02/ab_multi-cloud.jpg");
+        }
+        .middle_C
+        {
+            height: 600px;
+
+            background-color: rgba(208, 232, 255, 0.75);
+
+            overflow-y: scroll;
+        }
+        .inner_C
+        {
+            min-height: 550px;
+
+            padding: 25px;
+        }
+        nav, .right_content
+        {
+            display: block;
+            float: left;
+        }
+        .right_content
+        {
+            padding-left: 50px;
+        }
+        .rmbt_L
+        {
+            display: inline-block;
+            width: 50%;
+        }
+        .rmbt_M
+        {
+            display: inline-block;
+            width: 45%;
+        }
+    </style>
+</head>
+
+<body>
+<div class = "outer_C">
+<div class = "middle_C">
+<div class = "inner_C">
+
+<nav>
+    <i>Staff:
+        <br>- Kevin (Benefits Coordinator, Id=1),<br>- John (Dept. Head, Id=2),
+        <br>- Fred (Supervisor, Id=3),<br>- Barbra (Peon, Id=4)
+    </i>
+
+    <br><br>
+
+    {% if current_user.is_authenticated %}
+
+    Logged in as <b><i>{{ current_user.name }}</i></b>
+    <br><br>
+
+    {% endif %}
+
+    <!---------------------------------------------------->
+
+    <a href="{{ url_for('index') }}">
+        Home
+    </a>
+
+    {% if current_user.is_authenticated %}
+
+    <br><a href="{{ url_for('reimbursements') }}">
+        Reimbursements
+    </a>
+    <br><a href="{{ url_for('reimbursements_req_attn') }}">
+        Approve Reimbursements
+    </a>
+    <br><a href="{{ url_for('rqst_tutn_reimbursement') }}">
+        Request Tuition Reimbursement
+    </a>
+
+    {% endif %}
+
+    {% if not current_user.is_authenticated %}
+
+    <br><a href="{{ url_for('login') }}">
+        Login
+    </a>
+
+    {% endif %}
+    {% if current_user.is_authenticated %}
+
+    <br><a href="{{ url_for('logout') }}">
+        Logout
+    </a>
+
+    {% endif %}
+</nav>
+<div class = "right_content">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>
+  Reimbursements for user #{{ current_user.id }}
+</h3>
+
+{% for data in data %}
+
+<hr>
+
+<div id = "div_{{ data.id }}">
+
+    <script>
+        FE = document.getElementById("div_{{ data.id }}");
+
+        if ((5 * ({{ data.id }} - 1)) % 12 == 0) FE.style.color = "rgb(64,  0,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 1) FE.style.color = "rgb(64, 16,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 2) FE.style.color = "rgb(64, 32,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 3) FE.style.color = "rgb(64, 48,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 4) FE.style.color = "rgb(64, 64,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 5) FE.style.color = "rgb(32, 64,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 6) FE.style.color = "rgb( 0, 64,  0)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 7) FE.style.color = "rgb( 0, 64, 64)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 8) FE.style.color = "rgb( 0,  0, 64)";
+        if ((5 * ({{ data.id }} - 1)) % 12 == 9) FE.style.color = "rgb(32,  0, 64)";
+        if ((5 * ({{ data.id }} - 1)) % 12 ==10) FE.style.color = "rgb(64,  0, 64)";
+        if ((5 * ({{ data.id }} - 1)) % 12 ==11) FE.style.color = "rgb(64,  0, 32)";
+    </script>
+
+    Reimbursement #{{ data.id }}<br><br>
+
+    <div>
+        <div class = "rmbt_L">
+            Class<br>
+            Funds<br>
+            Pres. / Grade<br><br>
+            Date Requested<br>
+            Date Starting<br>
+            Date of Last Escalation
+        </div>
+        <div class = "rmbt_M">
+            {{ data.classType            }}<br>
+            <script>
+                price = "$" + "{{ data.funds }}";
+
+                if (price.charAt(price.length - 2) == ".")
+                    price += "0";
+
+                document.write(price);
+            </script><br>
+            {{ data.gradeOrPresentation  }}<br><br>
+
+            <span style = "color: rgba(0, 0, 0, 0.5);">
+                {{ data.dateRequested        }}</span><br>
+            <span style = "color: rgba(0, 0, 0, 0.5);">
+                {{ data.dateStarting         }}</span><br>
+            <span style = "color: rgba(0, 0, 0, 0.5);">
+                {{ data.dateOfLastEscalation }}</span>
+        </div>
+    </div>
+
+    <br>
+
+    <div id = "this_li_{{ data.id }}">Stage & History:
+        <script>
+            list_el = document.getElementById("this_li_{{ data.id }}");
+
+            list_tx = "{{ data.stageReason }}";
+            list_tx = list_tx.replaceAll("(br)", "<br>");
+            list_tx = list_tx.replaceAll("<br><br><br>", "<br><i>No reason given</i><br><br>");
+
+            list_el.innerHTML
+              = "Stage & History:<br><p style = 'margin-left: 18px;'>" + list_tx +
+                "</p><br>";
+        </script>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}

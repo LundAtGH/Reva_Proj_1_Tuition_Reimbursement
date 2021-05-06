@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>
+  Tuition Reimbursement Request Form
+</h3>
+
+<p style = "text-align: right">
+    <i>...formerly attempted with AJAX</i>
+</p>
+
+<hr>
+
+    <p id = "result"></p>
+
+<form method = "POST" action = "/rmbts/{{ current_user.id }}">
+
+    <input name        = "id"
+           type        = "hidden"
+           value       = "0">
+
+    <input name        = "employeeId"
+           type        = "hidden"
+           value       = "{{ current_user.id }}">
+
+    <input name        = "name"
+           id          = "name"
+           type        = "text"
+           placeholder = "Name"
+           value       = "{{ current_user.name }}"><br><br>
+
+    <input id          = "address"
+           type        = "text"
+           placeholder = "Address"
+           autofocus   = ""><br><br>
+
+    <input id          = "phone"
+           type        = "text"
+           placeholder = "Phone Number"
+           value       = "{{ current_user.phone }}"><br><br>
+
+    <input id          = "email"
+           type        = "text"
+           placeholder = "Email"
+           value       = "revsauce@hotmail.com"><br><br>
+
+    Date Requesting Funds<br><input
+           name        = "dateRequested"
+           id          = "date"
+           type        = "date"
+           value       = "2021-01-01"><br><br>
+
+    <input name        = "dateOfLastEscalation"
+           type        = "hidden"
+           value       = "2021-01-01">
+
+    Date Starting<br><input
+           name        = "dateStarting"
+           id          = "dateStarting"
+           type        = "date"
+           value       = "2021-01-01"><br><br>
+
+    <input name        = "eventInfo"
+           id          = "eventInfo"
+           type        = "text"
+           value       = "No event info."
+           placeholder = "Location, description, etc."><br><br>
+
+    <input id          = "cost"
+           type        = "number"
+           placeholder = "Cost"
+           onchange    = "calculateCost()"><br><br>
+
+    <select name       = "classType"
+            id         = "classType"
+            onchange   = "calculateCost()">
+
+        <option value  = "None"             >pick class type</option>
+        <option value  = "University Course">university course</option>
+        <option value  = "Seminar"          >seminar</option>
+        <option value  = "Cert. Prep. Class">cert. prep. class</option>
+        <option value  = "Certification"    >certification</option>
+        <option value  = "Tech. Training"   >tech. training</option>
+        <option value  = "Other"            >other</option>
+
+    </select><br>
+    <br>
+    Reimbursement projection:
+        <span id = "calculatedCost">
+            $----.--</span><br>
+
+    <input name  = "funds"
+           id    = "funds"
+           type  = "hidden"
+           value = "0">
+
+    <input name  = "approvalStage"
+           type  = "hidden"
+           value = "0">
+
+    <input name  = "gradeOrPresentation"
+           type  = "hidden"
+           value = "www.youtube.com/presentation">
+
+    <br>
+    Optional:<br>
+    <br>
+    Approval Email (.msg) /<br>Other Event-Related File:<br>
+    <input id          = "attachment"
+           type        = "file"
+           placeholder = ""><br>
+    <br>
+    <input id          = "workTimeMissed"
+           type        = "number"
+           placeholder = "Work Missed (Hours)"><br>
+    <br>
+    <button>submit</button>
+</form>
+
+<br>
+
+<script>
+    function calculateCost()
+    {
+        let event_cost
+          = getEventCost();
+
+        let event_cost_calc
+          = document.getElementById("calculatedCost");
+
+        let price = "$" +
+            parseInt(event_cost) + "." +
+            (
+                parseInt(event_cost  * 100) -
+               (parseInt(event_cost) * 100)
+            );
+
+        if (price.charAt(price.length - 2) == ".")
+            price += "0";
+
+        event_cost_calc.innerHTML = price;
+
+        document
+           .getElementById("funds")
+           .value = parseInt(event_cost * 100) / 100;
+    }
+    function calculateFunds()
+    {
+        let event_cost = getEventCost();
+
+        return
+            parseInt(event_cost * 100) / 100;
+    }
+    function getEventCost()
+    {
+        let event_cost
+          = document.getElementById("cost").value;
+
+        let event_type
+          = document.getElementById("classType").value;
+
+        if (event_type == "None"             ) event_cost *= 0;
+        if (event_type == "University Course") event_cost *= 0.8;
+        if (event_type == "Seminar"          ) event_cost *= 0.6;
+        if (event_type == "Cert. Prep. Class") event_cost *= 0.75;
+        if (event_type == "Certification"    ) event_cost *= 1;
+        if (event_type == "Tech. Training"   ) event_cost *= 0.9;
+        if (event_type == "Other"            ) event_cost *= 0.3;
+
+        console.log(event_cost);
+
+        return event_cost;
+    }
+    function submitReimbursement()
+    {
+        console.log("Adding reimbursement to database...");
+
+        let xhr
+          = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function ()
+        {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                console.log(this.responseText);
+
+                let rmbt = JSON.parse(this.responseText);
+
+                let info =
+                `
+                    <h5>Rmbt. ID: ${       rmbt.id                   }</h5>
+                    <h5>Empy. ID: ${       rmbt.employeeId           }</h5>
+                    <h5>Class: ${          rmbt.classType            }</h5>
+                    <h5>Funds: $${         rmbt.funds                }</h5>
+                    <h5>Approval Stage: ${ rmbt.approvalStage        }</h5>
+                    <h5>Stage Reason: ${   rmbt.stageReason          }</h5>
+                    <h5>Pres./Grade: ${    rmbt.gradeOrPresentation  }</h5>
+                    <h5>Last Esc. Date: ${ rmbt.dateOfLastEscalation }</h5>
+                    <h5>Date Requested: ${ rmbt.dateRequested        }</h5>
+                    <h5>Date Starting: ${  rmbt.dateStarting         }</h5>
+                `
+                document.getElementById("result").innerHTML = info;
+            }
+            else if (this.status == 404)
+            {
+                document.getElementById("result").innerHTML
+                  = "<span style = 'color: red;'>Not found.</span>"
+            }
+        }
+
+        let name           = getValueOf("name");
+        let phone          = getValueOf("phone");
+        let email          = getValueOf("email");
+
+        let date           = parseInt(getValueOf("date"));
+
+        let eventInfo      = getValueOf("eventInfo");
+
+        let dateStarting   = parseInt(getValueOf("dateStarting"));
+
+        let funds          = calculateFunds();
+        let classType      = getValueOf("classType");
+        let gradeOrPres    = "www.youtube.com/presentation";
+        let workTimeMissed = getValueOf("workTimeMissed");
+
+        url = "http://localhost:5000/rmbts/" + {{ current_user.id }};
+
+        xhr.open("POST", url, true);
+
+        let rmbt = {
+            id:                   0,
+            employeeId:           {{ current_user.id }},
+            classType:            classType + " for " + "{{ current_user.name }}",
+            funds:                funds,
+            approvalStage:        0,
+            stageReason:          "Not Yet Approved",
+            gradeOrPresentation:  gradeOrPres,
+            dateOfLastEscalation: date,
+            dateRequested:        date,
+            dateStarting:         dateStarting
+        }
+
+        xhr.send(JSON.stringify(rmbt));
+    }
+    function getValueOf(ID)
+    {
+        return document.getElementById(ID).value;
+    }
+</script>
+
+{% endblock %}

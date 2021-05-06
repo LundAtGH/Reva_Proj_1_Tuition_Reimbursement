@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>
+    TRMS
+</h1>
+<h2>
+    Tuition Reimbursement Management System
+</h2>
+
+{% if current_user.is_authenticated %}
+
+<p>
+    Welcome, {{ current_user.name }} ({{ current_user.job }})
+
+{% endif %}
+
+{% endblock %}
